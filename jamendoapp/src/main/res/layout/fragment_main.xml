@@ -22,11 +22,17 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="es.oneoctopus.jamendoapp.MainActivity$PlaceholderFragment">
+    tools:context="es.oneoctopus.jamendoapp.activities.MainActivity$PlaceholderFragment">
 
-    <TextView
-        android:id="@+id/section_label"
+
+    <Button
+        android:id="@+id/button"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="34dp"
+        android:layout_marginTop="44dp"
+        android:text="Test ArtistActivity" />
 </RelativeLayout>

@@ -13,9 +13,11 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="es.oneoctopus.jamendoapp">
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -23,13 +25,22 @@
         android:label="@string/app_name"
         android:theme="@style/JamendoTheme">
         <activity
-            android:name="es.oneoctopus.jamendoapp.MainActivity"
+            android:name="es.oneoctopus.jamendoapp.activities.MainActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="es.oneoctopus.jamendoapp.activities.ArtistActivity"
+            android:label="@string/title_activity_artist"
+            android:parentActivityName="es.oneoctopus.jamendoapp.activities.MainActivity">
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="es.oneoctopus.jamendoapp.activities.MainActivity" />
         </activity>
     </application>
 
