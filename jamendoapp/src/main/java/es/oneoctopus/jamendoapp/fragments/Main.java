@@ -76,12 +76,11 @@ public class Main extends BaseJamendoFragment {
         super.onViewCreated(view, savedInstanceState);
 
         if (savedInstanceState != null) {
-            System.out.println("SAVED");
-            featuredTracks = (ArrayList<Track>) savedInstanceState.get("featuredTracks");
+            if (savedInstanceState.containsKey("featuredTracks"))
+                featuredTracks = (ArrayList<Track>) savedInstanceState.get("featuredTracks");
             setAdapterAndListener();
         } else {
-            System.out.println("NOT SAVED");
-            getApi().getFeaturedTracks(Constants.CLIENT_ID, "json", "popularity_week", true, 600, 15, "stats", new Callback<TracksResponse>() {
+            getApi().getFeaturedTracks(Constants.CLIENT_ID, "json", "popularity_week", true, Constants.IMAGES_SIZE, Constants.LIST_LIMIT, "stats", new Callback<TracksResponse>() {
                 @Override
                 public void success(TracksResponse tracksResponse, Response response) {
                     if (tracksResponse.getResults().size() > 0) {
@@ -118,7 +117,7 @@ public class Main extends BaseJamendoFragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putSerializable("featuredTracks", featuredTracks);
         super.onSaveInstanceState(outState);
+        outState.putSerializable("featuredTracks", featuredTracks);
     }
 }
