@@ -15,21 +15,24 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:parallax="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="es.oneoctopus.jamendoapp.ArtistFragment">
+    tools:context="es.oneoctopus.jamendoapp.activities.PlayerActivity">
 
 
-    <ImageView
+    <com.nvanbenschoten.motion.ParallaxImageView
         android:id="@+id/trackimage"
         android:layout_width="match_parent"
         android:layout_height="400dp"
         android:layout_marginLeft="0dp"
         android:layout_marginTop="0dp"
         android:cropToPadding="false"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"
+        parallax:forwardTiltOffset="0.5"
+        parallax:tiltSensitivity="1" />
 
     <RelativeLayout
         android:layout_width="fill_parent"
@@ -79,6 +82,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_below="@+id/trackbar"
+            android:layout_marginTop="@dimen/littlespace"
             android:orientation="horizontal">
 
             <ImageView

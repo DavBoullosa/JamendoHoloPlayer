@@ -33,6 +33,7 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.nvanbenschoten.motion.ParallaxImageView;
 import com.squareup.picasso.Picasso;
 
 import es.oneoctopus.jamendoapp.R;
@@ -44,7 +45,7 @@ public class PlayerActivity extends BaseJamendoActivity {
     private final String TAG = "PlayerActivity";
     Handler handler = new Handler();
     Runnable trackbarRunnable;
-    private ImageView trackImage;
+    private ParallaxImageView trackImage;
     private TextView trackTitle;
     private TextView trackArtist;
     private ImageView playPause;
@@ -53,6 +54,23 @@ public class PlayerActivity extends BaseJamendoActivity {
     private Playlist playlist;
     private PlayService playService;
 
+    private boolean updateTrackbar = false;
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()) {
+                case PlayService.PLAYER_START:
+                    updateTrackbar = true;
+                    updateTrackbar();
+                    setPauseControl();
+                    break;
+
+                case PlayService.PLAYER_END:
+                    setPlayControl();
+                    break;
+            }
+        }
+    };
     private Intent playIntent;
     private boolean boundToPlayService = false;
     private ServiceConnection musicConnection = new ServiceConnection() {
@@ -73,28 +91,13 @@ public class PlayerActivity extends BaseJamendoActivity {
             boundToPlayService = false;
         }
     };
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case PlayService.PLAYER_START:
-                    updateTrackbar();
-                    setPauseControl();
-                    break;
-
-                case PlayService.PLAYER_END:
-                    setPlayControl();
-                    break;
-            }
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
 
-        trackImage = (ImageView) findViewById(R.id.trackimage);
+        trackImage = (ParallaxImageView) findViewById(R.id.trackimage);
         trackTitle = (TextView) findViewById(R.id.titletrack);
         trackArtist = (TextView) findViewById(R.id.artistname);
         playPause = (ImageView) findViewById(R.id.playpausebutton);
@@ -107,6 +110,8 @@ public class PlayerActivity extends BaseJamendoActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        trackImage.registerSensorManager();
 
         registerReceiver(broadcastReceiver, new IntentFilter(PlayService.PLAYER_END));
         registerReceiver(broadcastReceiver, new IntentFilter(PlayService.PLAYER_START));
@@ -133,11 +138,15 @@ public class PlayerActivity extends BaseJamendoActivity {
         } catch (IllegalArgumentException e) {
             Log.e(TAG, "onPause", e);
         }
+
         unregisterReceiver(broadcastReceiver);
-        handler.removeCallbacks(trackbarRunnable);
+        updateTrackbar = false;
+        trackImage.unregisterSensorManager();
     }
 
     private void setControls() {
+
+        if (playService.isPlaying()) updateTrackbar = true;
 
         if (playService.isPlaying() && playService.currentTrackPlaying().getId().equals(currentTrack.getId()))
             setPauseControl();
@@ -184,12 +193,12 @@ public class PlayerActivity extends BaseJamendoActivity {
      */
     public void updateTrackbar() {
 
-        if ((isPlaying() && (playService.isPlaying() && playService.currentTrackPlaying().getId().equals(currentTrack.getId()))) || !isPlaying()) {
+        if (playService.isPlaying() && (playService.currentTrackPlaying().getId().equals(currentTrack.getId())) || !isPlaying()) {
             trackBar.setMax(getDuration());
             trackbarRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    if (playService != null) {
+                    if (playService != null && updateTrackbar) {
                         trackBar.setProgress(playService.getPosition());
                         System.out.println("Duration: " + getDuration() + " Set position: " + playService.getPosition() + " Position now: " + trackBar.getProgress());
                         handler.postDelayed(this, 1000);

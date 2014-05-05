@@ -1,1 +1,1 @@
-include ':jamendoapp'
+include ':jamendoapp', ':motion'
