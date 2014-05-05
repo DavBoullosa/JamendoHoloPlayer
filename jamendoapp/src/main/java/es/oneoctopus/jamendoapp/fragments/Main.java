@@ -31,11 +31,13 @@ import android.widget.Toast;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import es.oneoctopus.jamendoapp.R;
-import es.oneoctopus.jamendoapp.activities.TrackActivity;
+import es.oneoctopus.jamendoapp.activities.PlayerActivity;
 import es.oneoctopus.jamendoapp.adapters.TracksAdapter;
 import es.oneoctopus.jamendoapp.api.Response.TracksResponse;
+import es.oneoctopus.jamendoapp.media.Playlist;
 import es.oneoctopus.jamendoapp.models.Track;
 import es.oneoctopus.jamendoapp.utils.Constants;
 import retrofit.Callback;
@@ -106,9 +108,14 @@ public class Main extends BaseJamendoFragment {
         featuredList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent goToTrackActivity = new Intent(getActivity(), TrackActivity.class);
+                Intent goToTrackActivity = new Intent(getActivity(), PlayerActivity.class);
+
                 Bundle data = new Bundle();
-                data.putSerializable("track", (Track) parent.getItemAtPosition(position));
+                List<Track> tracksList = new ArrayList<>();
+                tracksList.add((Track) parent.getItemAtPosition(position));
+                Playlist playlist = new Playlist(tracksList);
+                data.putSerializable("playlist", playlist);
+
                 goToTrackActivity.putExtras(data);
                 startActivity(goToTrackActivity);
             }
