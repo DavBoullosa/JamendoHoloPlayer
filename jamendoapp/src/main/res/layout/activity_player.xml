@@ -32,7 +32,7 @@
         android:cropToPadding="false"
         android:scaleType="centerCrop"
         parallax:forwardTiltOffset="0.5"
-        parallax:tiltSensitivity="1" />
+        parallax:tiltSensitivity="1.6" />
 
     <RelativeLayout
         android:layout_width="fill_parent"
