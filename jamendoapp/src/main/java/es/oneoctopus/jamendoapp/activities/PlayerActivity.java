@@ -43,7 +43,7 @@ import es.oneoctopus.jamendoapp.services.PlayService;
 public class PlayerActivity extends BaseJamendoActivity {
     private final String TAG = "PlayerActivity";
     Handler handler = new Handler();
-    Runnable runnable;
+    Runnable trackbarRunnable;
     private ImageView trackImage;
     private TextView trackTitle;
     private TextView trackArtist;
@@ -52,36 +52,9 @@ public class PlayerActivity extends BaseJamendoActivity {
     private Track currentTrack;
     private Playlist playlist;
     private PlayService playService;
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case PlayService.PLAYER_START:
-                    trackBar.setMax(getDuration());
 
-                    runnable = new Runnable() {
-                        @Override
-                        public void run() {
-                            //TODO: Call this again when the activity is recreated
-                            if (playService != null) {
-                                trackBar.setProgress(playService.getPosition());
-                                System.out.println("Duration: " + getDuration() + " Set position: " + playService.getPosition() + " Position now: " + trackBar.getProgress());
-                                handler.postDelayed(this, 1000);
-                            }
-                        }
-                    };
-                    handler.postDelayed(runnable, 1000);
-
-                    break;
-
-                case PlayService.PLAYER_END:
-                    setPlayControl();
-                    break;
-            }
-        }
-    };
     private Intent playIntent;
-    private boolean musicBound = false;
+    private boolean boundToPlayService = false;
     private ServiceConnection musicConnection = new ServiceConnection() {
 
         @Override
@@ -89,14 +62,30 @@ public class PlayerActivity extends BaseJamendoActivity {
             PlayService.PlayBinder binder = (PlayService.PlayBinder) service;
             playService = binder.getService();
             playService.setPlaylist(playlist);
-            musicBound = true;
+            boundToPlayService = true;
             updateTrackStuff();
             setControls();
+            updateTrackbar();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            musicBound = false;
+            boundToPlayService = false;
+        }
+    };
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()) {
+                case PlayService.PLAYER_START:
+                    updateTrackbar();
+                    setPauseControl();
+                    break;
+
+                case PlayService.PLAYER_END:
+                    setPlayControl();
+                    break;
+            }
         }
     };
 
@@ -127,39 +116,46 @@ public class PlayerActivity extends BaseJamendoActivity {
             bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
             startService(playIntent);
         }
+
+        if (boundToPlayService) setControls();
+        if (boundToPlayService && playService != null) updateTrackbar();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         try {
+            unbindService(musicConnection);
             if (playlist.isEmpty() || playlist.isOver()) {
                 stopService(playIntent);
                 playService = null;
             }
-            unbindService(musicConnection);
         } catch (IllegalArgumentException e) {
             Log.e(TAG, "onPause", e);
         }
         unregisterReceiver(broadcastReceiver);
+        handler.removeCallbacks(trackbarRunnable);
     }
 
     private void setControls() {
+
+        if (playService.isPlaying() && playService.currentTrackPlaying().getId().equals(currentTrack.getId()))
+            setPauseControl();
 
         playPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 if (playService.currentTrackPlaying() == null) {
-                    start(true);
+                    start();
                 } else {
                     if (playService.currentTrackPlaying().getId().equals(currentTrack.getId())) {
-                        if (isPlaying()) pause(true);
-                        else restart(true);
+                        if (isPlaying()) pause();
+                        else restart();
                     } else {
                         playService.setPlaylist(playlist);
                         playService.updateCurrentTrack();
-                        start(false);
+                        start();
                     }
                 }
             }
@@ -182,9 +178,27 @@ public class PlayerActivity extends BaseJamendoActivity {
         }
     }
 
-    public void startPlayingSongAutomatically() {
-        playService.setPlaylist(playlist);
-        playService.playTrack();
+    /**
+     * Updates the trackbar only under three circumstances: if the player was stopped and we play a track, if the track we selected is the same
+     * that is playing at the moment, or if we play a different track than the one playing.
+     * In any other case (eg. when a track is selected but not played) the trackbar won't be updated and would stay at 0.
+     */
+    public void updateTrackbar() {
+
+        if ((isPlaying() && (playService.isPlaying() && playService.currentTrackPlaying().getId().equals(currentTrack.getId()))) || !isPlaying()) {
+            trackBar.setMax(getDuration());
+            trackbarRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (playService != null) {
+                        trackBar.setProgress(playService.getPosition());
+                        System.out.println("Duration: " + getDuration() + " Set position: " + playService.getPosition() + " Position now: " + trackBar.getProgress());
+                        handler.postDelayed(this, 1000);
+                    }
+                }
+            };
+            handler.postDelayed(trackbarRunnable, 1000);
+        }
     }
 
     public void updateUI() {
@@ -214,31 +228,28 @@ public class PlayerActivity extends BaseJamendoActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void start(boolean changeControl) {
+    public void start() {
         playService.playTrack();
-        if (changeControl) setPauseControl();
     }
 
-    public void restart(boolean changeControl) {
+    public void restart() {
         playService.go();
-        if (changeControl)
-            setPauseControl();
+        setPauseControl();
     }
 
-    public void pause(boolean changeControl) {
+    public void pause() {
         playService.pausePlayer();
-        if (changeControl)
-            setPlayControl();
+        setPlayControl();
     }
 
     public int getDuration() {
-        if (playService != null && musicBound && playService.isPlaying())
+        if (playService != null && boundToPlayService && playService.isPlaying())
             return playService.getDuration();
         else return 0;
     }
 
     public int getCurrentPosition() {
-        if (playService != null && musicBound && playService.isPlaying())
+        if (playService != null && boundToPlayService && playService.isPlaying())
             return playService.getPosition();
         else return 0;
     }
@@ -248,7 +259,7 @@ public class PlayerActivity extends BaseJamendoActivity {
     }
 
     public boolean isPlaying() {
-        if (playService != null && musicBound)
+        if (playService != null && boundToPlayService)
             return playService.isPlaying();
         else
             return false;
