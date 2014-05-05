@@ -181,7 +181,6 @@ public class PlayerActivity extends BaseJamendoActivity {
     /**
      * Updates the trackbar only under three circumstances: if the player was stopped and we play a track, if the track we selected is the same
      * that is playing at the moment, or if we play a different track than the one playing.
-     * In any other case (eg. when a track is selected but not played) the trackbar won't be updated and would stay at 0.
      */
     public void updateTrackbar() {
 
