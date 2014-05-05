@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,7 +41,7 @@ public class PlayerActivity extends BaseJamendoActivity {
     private ImageView trackImage;
     private TextView trackTitle;
     private TextView trackArtist;
-    private ImageView playButton;
+    private ImageView playPause;
 
     private Track currentTrack;
     private Playlist playlist;
@@ -70,13 +71,13 @@ public class PlayerActivity extends BaseJamendoActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_track);
+        setContentView(R.layout.activity_player);
 
         trackImage = (ImageView) findViewById(R.id.trackimage);
         trackTitle = (TextView) findViewById(R.id.titletrack);
         trackArtist = (TextView) findViewById(R.id.artistname);
 
-        playButton = (ImageView) findViewById(R.id.playbutton);
+        playPause = (ImageView) findViewById(R.id.playpausebutton);
 
         if (getIntent().getExtras() != null) {
             playlist = (Playlist) getIntent().getExtras().getSerializable("playlist");
@@ -85,8 +86,8 @@ public class PlayerActivity extends BaseJamendoActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onResume() {
+        super.onResume();
         if (playIntent == null) {
             playIntent = new Intent(this, PlayService.class);
             bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
@@ -95,18 +96,24 @@ public class PlayerActivity extends BaseJamendoActivity {
     }
 
     private void setControls() {
-        playButton.setOnClickListener(new View.OnClickListener() {
+
+        if (playService.isPlaying()) playPause.setImageResource(R.drawable.pauseicon);
+
+        playPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                /*
-                If we tap this with the same track we're listening that's a pause. If not, that's a track change.
-                 */
-                if (currentTrack == playService.currentTrackPlaying()) {
-                    if (!isPlaying()) playService.playTrack();
-                    else pause();
+                if (playService.currentTrackPlaying() == null) {
+                    start();
                 } else {
-                    playService.playTrack();
+                    if (playService.currentTrackPlaying().getId().equals(currentTrack.getId())) {
+                        if (isPlaying()) pause();
+                        else restart();
+                    } else {
+                        playService.setPlaylist(playlist);
+                        playService.updateCurrentTrack();
+                        start();
+                    }
                 }
             }
         });
@@ -136,11 +143,15 @@ public class PlayerActivity extends BaseJamendoActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (playlist.isEmpty() || playlist.isOver()) {
-            stopService(playIntent);
-            playService = null;
+        try {
+            if (playlist.isEmpty() || playlist.isOver()) {
+                stopService(playIntent);
+                playService = null;
+            }
+            unbindService(musicConnection);
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "onPause", e);
         }
-        unbindService(musicConnection);
     }
 
     public void updateUI() {
@@ -171,11 +182,18 @@ public class PlayerActivity extends BaseJamendoActivity {
     }
 
     public void start() {
+        playService.playTrack();
+        playPause.setImageResource(R.drawable.pauseicon);
+    }
+
+    public void restart() {
         playService.go();
+        playPause.setImageResource(R.drawable.pauseicon);
     }
 
     public void pause() {
         playService.pausePlayer();
+        playPause.setImageResource(R.drawable.playicon);
     }
 
     public int getDuration() {
