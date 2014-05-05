@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2014 David Alejandro Fernández Sancho
  *
@@ -14,11 +15,27 @@
  * limitations under the License.
  */
 
-package es.oneoctopus.jamendoapp.utils;
+package es.oneoctopus.jamendoapp.api.Response;
 
-public class Constants {
+import java.util.List;
 
-    // Only to test read methods
-    public static final String CLIENT_ID = "b6747d04";
-    private static final String API_URL = "http://api.jamendo.com/v3.0";
+public class TracksResponse {
+    private Headers headers;
+    private List results;
+
+    public Headers getHeaders() {
+        return this.headers;
+    }
+
+    public void setHeaders(Headers headers) {
+        this.headers = headers;
+    }
+
+    public List getResults() {
+        return this.results;
+    }
+
+    public void setResults(List results) {
+        this.results = results;
+    }
 }

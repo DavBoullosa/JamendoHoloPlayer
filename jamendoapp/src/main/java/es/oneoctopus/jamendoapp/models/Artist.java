@@ -16,11 +16,13 @@
 
 package es.oneoctopus.jamendoapp.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
 import java.io.Serializable;
 
 @JsonRootName(value = "result")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Artist implements Serializable {
 
     private long id;

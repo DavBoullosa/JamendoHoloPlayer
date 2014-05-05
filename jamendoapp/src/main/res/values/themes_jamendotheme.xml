@@ -62,4 +62,14 @@
 
     </style>
 
+    <style name="JamendoThemeTranslucentActionBar" parent="@style/JamendoTheme">
+        <item name="windowActionBarOverlay">true</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:actionBarStyle">@style/JamendoTranslucentActionBar</item>
+    </style>
+
+    <style name="JamendoTranslucentActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@color/jamendotheme_color_translucent</item>
+    </style>
+
 </resources>

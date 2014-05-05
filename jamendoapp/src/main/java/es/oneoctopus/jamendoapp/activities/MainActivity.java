@@ -25,6 +25,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import es.oneoctopus.jamendoapp.R;
+import es.oneoctopus.jamendoapp.fragments.Main;
 import es.oneoctopus.jamendoapp.fragments.NavigationDrawerFragment;
 
 
@@ -63,7 +64,7 @@ public class MainActivity extends ActionBarActivity
 
         switch (position) {
             case 0:
-                //fragmentManager.beginTransaction().replace(R.id.container, PlaceholderFragment.newInstance(1)).commit();
+                fragmentManager.beginTransaction().replace(R.id.container, Main.newInstance()).commit();
                 break;
         }
     }

@@ -13,8 +13,11 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="es.oneoctopus.jamendoapp">
+    package="es.oneoctopus.jamendoapp"
+    android:versionCode="1"
+    android:versionName="0.1">>
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -37,6 +40,16 @@
             android:name="es.oneoctopus.jamendoapp.activities.ArtistActivity"
             android:label="@string/title_activity_artist"
             android:parentActivityName="es.oneoctopus.jamendoapp.activities.MainActivity">
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="es.oneoctopus.jamendoapp.activities.MainActivity" />
+        </activity>
+        <activity
+            android:name="es.oneoctopus.jamendoapp.activities.TrackActivity"
+            android:label="@string/title_activity_track"
+            android:parentActivityName="es.oneoctopus.jamendoapp.activities.MainActivity"
+            android:theme="@style/JamendoThemeTranslucentActionBar">
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

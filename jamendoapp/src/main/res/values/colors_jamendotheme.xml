@@ -16,4 +16,5 @@
 
 <resources>
     <color name="jamendotheme_color">#562e57</color>
+    <color name="jamendotheme_color_translucent">#88562e57</color>
 </resources>

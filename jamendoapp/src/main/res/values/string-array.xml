@@ -1,4 +1,4 @@
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2014 David Alejandro Fernández Sancho
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,12 +14,10 @@
   ~ limitations under the License.
   -->
 
-<ListView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#ffffffff"
-    android:choiceMode="singleChoice"
-    android:divider="@android:color/transparent"
-    android:dividerHeight="0dp"
-    tools:context="es.oneoctopus.jamendoapp.fragments.NavigationDrawerFragment" />
+<resources>
+    <string-array name="featured_home">
+        <item>Featured songs</item>
+        <item>Featured albums</item>
+        <item>Featured artists</item>
+    </string-array>
+</resources>

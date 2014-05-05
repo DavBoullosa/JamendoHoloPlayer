@@ -21,4 +21,22 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="JamendoTitle">
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:textColor">@color/jamendotheme_color</item>
+        <item name="android:textStyle">italic</item>
+    </style>
+
+    <style name="h2TitleDark">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/almostblack</item>
+    </style>
+
+    <style name="h3TitleDark">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/sweetgray</item>
+    </style>
+
+
 </resources>
