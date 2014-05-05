@@ -66,7 +66,7 @@
         </LinearLayout>
 
         <SeekBar
-            android:id="@+id/seekBar"
+            android:id="@+id/trackbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/linearLayout"
@@ -78,7 +78,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_below="@+id/seekBar"
+            android:layout_below="@+id/trackbar"
             android:orientation="horizontal">
 
             <ImageView

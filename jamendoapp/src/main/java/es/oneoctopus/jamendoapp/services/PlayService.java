@@ -32,8 +32,12 @@ import es.oneoctopus.jamendoapp.media.Playlist;
 import es.oneoctopus.jamendoapp.models.Track;
 
 public class PlayService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
+    public static final String PLAYER_END = "es.oneoctopus.jamendoapp.PlayService.action.PLAYER_END";
+    public static final String PLAYER_START = "es.oneoctopus.jamendoapp.PlayService.action.PLAYER_START";
+    public static final String PLAYER_PREPARING = "es.oneoctopus.jamendoapp.PlayService.action.PREPARING";
     public final String TAG = "PlayService";
     private final IBinder playBind = new PlayBinder();
+    Intent commActivity;
     private MediaPlayer mediaPlayer;
     private Playlist currentPlaylist;
     private Track currentTrack;
@@ -94,7 +98,10 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-
+        if (currentPlaylist.isOver()) {
+            commActivity = new Intent(PLAYER_END);
+            sendBroadcast(commActivity);
+        }
     }
 
     @Override
@@ -105,13 +112,15 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
     @Override
     public void onPrepared(MediaPlayer mp) {
         mp.start();
+        commActivity = new Intent(PLAYER_START);
+        getApplicationContext().sendBroadcast(commActivity);
     }
 
-    public int getPosn() {
+    public int getPosition() {
         return mediaPlayer.getCurrentPosition();
     }
 
-    public int getDur() {
+    public int getDuration() {
         return mediaPlayer.getDuration();
     }
 
@@ -148,5 +157,4 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
             return PlayService.this;
         }
     }
-
 }

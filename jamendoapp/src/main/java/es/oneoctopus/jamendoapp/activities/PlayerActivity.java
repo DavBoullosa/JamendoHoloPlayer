@@ -16,17 +16,21 @@
 
 package es.oneoctopus.jamendoapp.activities;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -38,27 +42,55 @@ import es.oneoctopus.jamendoapp.services.PlayService;
 
 public class PlayerActivity extends BaseJamendoActivity {
     private final String TAG = "PlayerActivity";
+    Handler handler = new Handler();
+    Runnable runnable;
     private ImageView trackImage;
     private TextView trackTitle;
     private TextView trackArtist;
     private ImageView playPause;
-
+    private SeekBar trackBar;
     private Track currentTrack;
     private Playlist playlist;
     private PlayService playService;
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()) {
+                case PlayService.PLAYER_START:
+                    trackBar.setMax(getDuration());
+
+                    runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            //TODO: Call this again when the activity is recreated
+                            if (playService != null) {
+                                trackBar.setProgress(playService.getPosition());
+                                System.out.println("Duration: " + getDuration() + " Set position: " + playService.getPosition() + " Position now: " + trackBar.getProgress());
+                                handler.postDelayed(this, 1000);
+                            }
+                        }
+                    };
+                    handler.postDelayed(runnable, 1000);
+
+                    break;
+
+                case PlayService.PLAYER_END:
+                    setPlayControl();
+                    break;
+            }
+        }
+    };
     private Intent playIntent;
     private boolean musicBound = false;
-    //connect to the service
     private ServiceConnection musicConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             PlayService.PlayBinder binder = (PlayService.PlayBinder) service;
-            //get service
             playService = binder.getService();
-            //pass list
             playService.setPlaylist(playlist);
             musicBound = true;
+            updateTrackStuff();
             setControls();
         }
 
@@ -76,18 +108,20 @@ public class PlayerActivity extends BaseJamendoActivity {
         trackImage = (ImageView) findViewById(R.id.trackimage);
         trackTitle = (TextView) findViewById(R.id.titletrack);
         trackArtist = (TextView) findViewById(R.id.artistname);
-
         playPause = (ImageView) findViewById(R.id.playpausebutton);
+        trackBar = (SeekBar) findViewById(R.id.trackbar);
 
-        if (getIntent().getExtras() != null) {
+        if (getIntent().getExtras() != null)
             playlist = (Playlist) getIntent().getExtras().getSerializable("playlist");
-            updateTrackStuff();
-        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        registerReceiver(broadcastReceiver, new IntentFilter(PlayService.PLAYER_END));
+        registerReceiver(broadcastReceiver, new IntentFilter(PlayService.PLAYER_START));
+
         if (playIntent == null) {
             playIntent = new Intent(this, PlayService.class);
             bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
@@ -95,24 +129,37 @@ public class PlayerActivity extends BaseJamendoActivity {
         }
     }
 
-    private void setControls() {
+    @Override
+    protected void onPause() {
+        super.onPause();
+        try {
+            if (playlist.isEmpty() || playlist.isOver()) {
+                stopService(playIntent);
+                playService = null;
+            }
+            unbindService(musicConnection);
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "onPause", e);
+        }
+        unregisterReceiver(broadcastReceiver);
+    }
 
-        if (playService.isPlaying()) playPause.setImageResource(R.drawable.pauseicon);
+    private void setControls() {
 
         playPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 if (playService.currentTrackPlaying() == null) {
-                    start();
+                    start(true);
                 } else {
                     if (playService.currentTrackPlaying().getId().equals(currentTrack.getId())) {
-                        if (isPlaying()) pause();
-                        else restart();
+                        if (isPlaying()) pause(true);
+                        else restart(true);
                     } else {
                         playService.setPlaylist(playlist);
                         playService.updateCurrentTrack();
-                        start();
+                        start(false);
                     }
                 }
             }
@@ -138,20 +185,6 @@ public class PlayerActivity extends BaseJamendoActivity {
     public void startPlayingSongAutomatically() {
         playService.setPlaylist(playlist);
         playService.playTrack();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        try {
-            if (playlist.isEmpty() || playlist.isOver()) {
-                stopService(playIntent);
-                playService = null;
-            }
-            unbindService(musicConnection);
-        } catch (IllegalArgumentException e) {
-            Log.e(TAG, "onPause", e);
-        }
     }
 
     public void updateUI() {
@@ -181,30 +214,32 @@ public class PlayerActivity extends BaseJamendoActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void start() {
+    public void start(boolean changeControl) {
         playService.playTrack();
-        playPause.setImageResource(R.drawable.pauseicon);
+        if (changeControl) setPauseControl();
     }
 
-    public void restart() {
+    public void restart(boolean changeControl) {
         playService.go();
-        playPause.setImageResource(R.drawable.pauseicon);
+        if (changeControl)
+            setPauseControl();
     }
 
-    public void pause() {
+    public void pause(boolean changeControl) {
         playService.pausePlayer();
-        playPause.setImageResource(R.drawable.playicon);
+        if (changeControl)
+            setPlayControl();
     }
 
     public int getDuration() {
         if (playService != null && musicBound && playService.isPlaying())
-            return playService.getDur();
+            return playService.getDuration();
         else return 0;
     }
 
     public int getCurrentPosition() {
         if (playService != null && musicBound && playService.isPlaying())
-            return playService.getPosn();
+            return playService.getPosition();
         else return 0;
     }
 
@@ -238,4 +273,13 @@ public class PlayerActivity extends BaseJamendoActivity {
     public int getAudioSessionId() {
         return 0;
     }
+
+    public void setPauseControl() {
+        playPause.setImageResource(R.drawable.pauseicon);
+    }
+
+    public void setPlayControl() {
+        playPause.setImageResource(R.drawable.playicon);
+    }
+
 }
