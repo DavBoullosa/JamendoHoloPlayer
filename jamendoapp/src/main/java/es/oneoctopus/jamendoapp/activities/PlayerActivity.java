@@ -183,7 +183,7 @@ public class PlayerActivity extends BaseJamendoActivity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
+                if (!isPlaying()) playService.seek(seekBar.getProgress());
             }
         });
     }
