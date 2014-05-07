@@ -82,8 +82,8 @@ public class PlayerActivity extends BaseJamendoActivity {
             playService.setPlaylist(playlist);
             boundToPlayService = true;
             updateTrackStuff();
-            setControls();
             updateTrackbar();
+            setControls();
         }
 
         @Override
@@ -122,8 +122,8 @@ public class PlayerActivity extends BaseJamendoActivity {
             startService(playIntent);
         }
 
-        if (boundToPlayService) setControls();
         if (boundToPlayService && playService != null) updateTrackbar();
+        if (boundToPlayService) setControls();
     }
 
     @Override
@@ -169,6 +169,23 @@ public class PlayerActivity extends BaseJamendoActivity {
                 }
             }
         });
+
+        trackBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser && isPlaying()) playService.seek(progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
     }
 
     private void playNext() {
@@ -198,7 +215,7 @@ public class PlayerActivity extends BaseJamendoActivity {
             trackbarRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    if (playService != null && updateTrackbar) {
+                    if (isPlaying() && updateTrackbar) {
                         trackBar.setProgress(playService.getPosition());
                         System.out.println("Duration: " + getDuration() + " Set position: " + playService.getPosition() + " Position now: " + trackBar.getProgress());
                         handler.postDelayed(this, 1000);
