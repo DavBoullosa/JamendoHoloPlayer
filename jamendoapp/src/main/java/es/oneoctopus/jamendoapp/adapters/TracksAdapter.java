@@ -57,6 +57,10 @@ public class TracksAdapter extends BaseAdapter {
         return items.get(position).getId();
     }
 
+    public List<Track> getAllItems() {
+        return items;
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 

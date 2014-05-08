@@ -99,16 +99,17 @@ public class FeaturedSongs extends BaseJamendoFragment {
         featuredList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent goToTrackActivity = new Intent(getActivity(), PlayerActivity.class);
+                Intent goToPlayActivity = new Intent(getActivity(), PlayerActivity.class);
 
                 Bundle data = new Bundle();
+
                 List<Track> tracksList = new ArrayList<>();
-                tracksList.add((Track) parent.getItemAtPosition(position));
-                Playlist playlist = new Playlist(tracksList);
+                tracksList.addAll(((TracksAdapter) parent.getAdapter()).getAllItems());
+                Playlist playlist = new Playlist(tracksList, position);
                 data.putSerializable("playlist", playlist);
 
-                goToTrackActivity.putExtras(data);
-                startActivity(goToTrackActivity);
+                goToPlayActivity.putExtras(data);
+                startActivity(goToPlayActivity);
             }
         });
     }

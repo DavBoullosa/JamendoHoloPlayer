@@ -38,6 +38,11 @@ public class Playlist implements Serializable {
         this.backedPlaylist = currentPlaylist;
     }
 
+    public Playlist(List<Track> currentPlaylist, int currentTrack) {
+        this.currentPlaylist = currentPlaylist;
+        this.currentTrack = currentTrack;
+    }
+
     public PlayMode getPlaylistMode() {
         return playlistMode;
     }
@@ -79,9 +84,8 @@ public class Playlist implements Serializable {
         }
     }
 
-    public void selectedTrack(int position) {
-        if (position >= 0 && position < 0)
-            currentTrack = position;
+    public void selectTrack(int position) {
+        currentTrack = position;
     }
 
     public Track getCurrentTrack() {
