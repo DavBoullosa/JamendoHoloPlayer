@@ -150,13 +150,21 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
     }
 
     public void playPrev() {
-        currentPlaylist.selectPreviousTrack();
+        if (!currentPlaylist.isFirstTrack())
+            currentPlaylist.selectPreviousTrack();
+        else
+            currentPlaylist.selectLastTrack();
+
         notifyToPlayer(TRACK_CHANGE);
         playTrack();
     }
 
     public void playNext() {
-        currentPlaylist.selectNextTrack();
+        if (!currentPlaylist.isLastTrack())
+            currentPlaylist.selectNextTrack();
+        else
+            currentPlaylist.restartPlaylist();
+
         notifyToPlayer(TRACK_CHANGE);
         playTrack();
     }

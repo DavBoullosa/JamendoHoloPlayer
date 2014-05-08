@@ -70,9 +70,11 @@ public class PlayerActivity extends BaseJamendoActivity {
 
                 case PlayService.TRACK_CHANGE:
                     updatePlayerInterface();
+                    makeControlsAvailable(false);
                     break;
 
                 case PlayService.TRACK_START:
+                    makeControlsAvailable(true);
                     updateTrackbar = true;
                     updateTrackbar();
                     setPauseControl();
@@ -186,6 +188,20 @@ public class PlayerActivity extends BaseJamendoActivity {
             }
         });
 
+        previous.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playService.playPrev();
+            }
+        });
+
+        next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playService.playNext();
+            }
+        });
+
         trackBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -202,6 +218,12 @@ public class PlayerActivity extends BaseJamendoActivity {
                 if (!playService.isPlaying()) playService.seek(seekBar.getProgress());
             }
         });
+    }
+
+    private void makeControlsAvailable(boolean available) {
+        playPause.setClickable(available);
+        next.setClickable(available);
+        previous.setClickable(available);
     }
 
     private void playNext() {

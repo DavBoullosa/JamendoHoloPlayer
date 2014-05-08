@@ -92,6 +92,10 @@ public class Playlist implements Serializable {
         return currentPlaylist.get(currentTrack);
     }
 
+    public boolean isFirstTrack() {
+        return currentTrack == 0;
+    }
+
     public boolean isLastTrack() {
         return currentTrack == currentPlaylist.size() - 1;
     }
@@ -104,6 +108,12 @@ public class Playlist implements Serializable {
     public void restartPlaylist() {
         currentTrack = 0;
     }
+
+    public void selectLastTrack() {
+        currentTrack = currentPlaylist.size() - 1;
+    }
+
+    ;
 
     public void changePlaylistOrder() {
 
