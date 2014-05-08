@@ -31,7 +31,7 @@ import java.io.IOException;
 import es.oneoctopus.jamendoapp.media.Playlist;
 import es.oneoctopus.jamendoapp.models.Track;
 
-public class PlayService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
+public class PlayService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnBufferingUpdateListener {
     public static final String TRACK_START = "es.oneoctopus.jamendoapp.PlayService.action.TRACK_START";
     public static final String TRACK_END = "es.oneoctopus.jamendoapp.PlayService.action.TRACK_END";
     public static final String TRACK_BUFFERING = "es.oneoctopus.jamendoapp.PlayService.action.TRACK_BUFFERING";
@@ -76,10 +76,12 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
     }
 
     public void playTrack() {
-        if (isPlaying()) mediaPlayer.stop();
+        if (isPlaying()) {
+            mediaPlayer.stop();
+            mediaPlayer.reset();
+        }
 
         updateCurrentTrack();
-        System.out.println("Updating current track. Current track: " + currentTrack.getName());
 
         try {
             mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(currentTrack.getAudio()));
@@ -91,10 +93,7 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
     }
 
     public void updateCurrentTrack() {
-        System.out.println("Updating current track in service");
-        if (currentTrack != null) System.out.println("Old track: " + currentTrack.getName());
         currentTrack = currentPlaylist.getCurrentTrack();
-        System.out.println("New track: " + currentTrack.getName());
     }
 
     public Track currentTrackPlaying() {
@@ -110,7 +109,6 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
             commActivity = new Intent(PLAYLIST_END);
             sendBroadcast(commActivity);
             currentPlaylist.restartPlaylist();
-            System.out.println("Restarting playlist");
             playTrack();
         } else {
             playTrack();
@@ -164,6 +162,11 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
     public void playNext() {
         currentPlaylist.selectNextTrack();
         playTrack();
+    }
+
+    @Override
+    public void onBufferingUpdate(MediaPlayer mp, int percent) {
+
     }
 
     public class PlayBinder extends Binder {

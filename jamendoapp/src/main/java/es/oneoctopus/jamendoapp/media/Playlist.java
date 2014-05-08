@@ -67,7 +67,6 @@ public class Playlist implements Serializable {
             currentTrack--;
             if (currentTrack < 0)
                 currentTrack = currentPlaylist.size() - 1;
-            System.out.println("PREVIOUS TRACK: " + currentTrack);
         }
     }
 
@@ -77,7 +76,6 @@ public class Playlist implements Serializable {
             currentTrack %= currentPlaylist.size();
         } else {
             currentTrack = -1;
-            System.out.println("Next track: -1");
         }
     }
 
@@ -91,7 +89,6 @@ public class Playlist implements Serializable {
     }
 
     public boolean isLastTrack() {
-        if (currentTrack == currentPlaylist.size() - 1) System.out.println("LAST TRACK");
         return currentTrack == currentPlaylist.size() - 1;
     }
 
@@ -101,7 +98,6 @@ public class Playlist implements Serializable {
     }
 
     public void restartPlaylist() {
-        System.out.println("The playlist has been reseted, current track 0");
         currentTrack = 0;
     }
 
