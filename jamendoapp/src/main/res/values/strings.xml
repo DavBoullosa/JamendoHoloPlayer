@@ -17,11 +17,19 @@
 <resources>
 
     <string name="app_name">Jamendo</string>
-    <string name="title_section1">Jamendo Home</string>
-    <string name="title_section2">Section 2</string>
+
+    <!-- Navigation drawer -->
+    <string name="title_section1">Featured</string>
+    <string name="title_section2">Search</string>
     <string name="title_section3">Section 3</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!-- Tabs main -->
+    <string name="featuredsongs">Featured songs</string>
+    <string name="featuredalbums">Featured albums</string>
+    <string name="featuredartists">Featured artists</string>
+
     <string name="action_example">Example action</string>
     <string name="action_settings">Settings</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -31,6 +39,9 @@
     <string name="title_activity_artist">Artist Name</string>
     <string name="title_activity_track">Track name</string>
 
+    <string name="in_jamendo_since">In Jamendo since %1$s</string>
+
     <string name="error">Ops! Something went wrong!</string>
+
 
 </resources>

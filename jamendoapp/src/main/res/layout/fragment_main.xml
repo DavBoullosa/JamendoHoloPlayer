@@ -27,6 +27,7 @@
         android:layout_height="wrap_content"
         android:divider="@color/verylightgray"
         android:dividerHeight="1dp"
+        android:fitsSystemWindows="true"
         android:paddingLeft="@dimen/littlespace"
         android:paddingRight="@dimen/littlespace"
         android:scrollbarStyle="outsideOverlay" />

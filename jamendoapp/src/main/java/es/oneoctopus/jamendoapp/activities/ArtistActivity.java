@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.picasso.Picasso;
 
 import es.oneoctopus.jamendoapp.R;
-import es.oneoctopus.jamendoapp.api.Response.ArtistResponse;
+import es.oneoctopus.jamendoapp.api.Responses.ArtistResponse;
 import es.oneoctopus.jamendoapp.models.Artist;
 import es.oneoctopus.jamendoapp.utils.Constants;
 import retrofit.Callback;

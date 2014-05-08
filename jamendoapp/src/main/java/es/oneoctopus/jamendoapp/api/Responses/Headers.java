@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package es.oneoctopus.jamendoapp.api.Response;
+package es.oneoctopus.jamendoapp.api.Responses;
 
 public class Headers {
     private Number code;

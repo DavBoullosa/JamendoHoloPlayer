@@ -15,13 +15,15 @@
  * limitations under the License.
  */
 
-package es.oneoctopus.jamendoapp.api.Response;
+package es.oneoctopus.jamendoapp.api.Responses;
 
 import java.util.List;
 
-public class TracksResponse {
+import es.oneoctopus.jamendoapp.models.Artist;
+
+public class ArtistResponse {
     private Headers headers;
-    private List results;
+    private List<Artist> results;
 
     public Headers getHeaders() {
         return this.headers;

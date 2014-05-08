@@ -15,9 +15,5 @@
   -->
 
 <resources>
-    <string-array name="featured_home">
-        <item>Featured songs</item>
-        <item>Featured albums</item>
-        <item>Featured artists</item>
-    </string-array>
+
 </resources>

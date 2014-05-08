@@ -32,9 +32,10 @@ import es.oneoctopus.jamendoapp.media.Playlist;
 import es.oneoctopus.jamendoapp.models.Track;
 
 public class PlayService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
-    public static final String PLAYER_END = "es.oneoctopus.jamendoapp.PlayService.action.PLAYER_END";
-    public static final String PLAYER_START = "es.oneoctopus.jamendoapp.PlayService.action.PLAYER_START";
-    public static final String PLAYER_PREPARING = "es.oneoctopus.jamendoapp.PlayService.action.PREPARING";
+    public static final String TRACK_START = "es.oneoctopus.jamendoapp.PlayService.action.TRACK_START";
+    public static final String TRACK_END = "es.oneoctopus.jamendoapp.PlayService.action.TRACK_END";
+    public static final String TRACK_BUFFERING = "es.oneoctopus.jamendoapp.PlayService.action.TRACK_BUFFERING";
+    public static final String PLAYLIST_END = "es.oneoctopus.jamendoapp.PlayService.action.PLAYLIST_END";
     public final String TAG = "PlayService";
     private final IBinder playBind = new PlayBinder();
     Intent commActivity;
@@ -76,8 +77,9 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
 
     public void playTrack() {
         if (isPlaying()) mediaPlayer.stop();
-        mediaPlayer.reset();
+
         updateCurrentTrack();
+        System.out.println("Updating current track. Current track: " + currentTrack.getName());
 
         try {
             mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(currentTrack.getAudio()));
@@ -89,7 +91,10 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
     }
 
     public void updateCurrentTrack() {
+        System.out.println("Updating current track in service");
+        if (currentTrack != null) System.out.println("Old track: " + currentTrack.getName());
         currentTrack = currentPlaylist.getCurrentTrack();
+        System.out.println("New track: " + currentTrack.getName());
     }
 
     public Track currentTrackPlaying() {
@@ -98,10 +103,21 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
 
     @Override
     public void onCompletion(MediaPlayer mp) {
+        mediaPlayer.reset();
+        currentPlaylist.selectNextTrack();
+
         if (currentPlaylist.isOver()) {
-            commActivity = new Intent(PLAYER_END);
+            commActivity = new Intent(PLAYLIST_END);
             sendBroadcast(commActivity);
+            currentPlaylist.restartPlaylist();
+            System.out.println("Restarting playlist");
+            playTrack();
+        } else {
+            playTrack();
         }
+
+        commActivity = new Intent(TRACK_END);
+        sendBroadcast(commActivity);
     }
 
     @Override
@@ -112,7 +128,7 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
     @Override
     public void onPrepared(MediaPlayer mp) {
         mp.start();
-        commActivity = new Intent(PLAYER_START);
+        commActivity = new Intent(TRACK_START);
         getApplicationContext().sendBroadcast(commActivity);
     }
 
@@ -142,13 +158,11 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
 
     public void playPrev() {
         currentPlaylist.selectPreviousTrack();
-        updateCurrentTrack();
         playTrack();
     }
 
     public void playNext() {
         currentPlaylist.selectNextTrack();
-        updateCurrentTrack();
         playTrack();
     }
 

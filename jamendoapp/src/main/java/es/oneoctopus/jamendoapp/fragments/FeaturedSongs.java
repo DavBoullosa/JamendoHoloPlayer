@@ -23,9 +23,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,7 +34,7 @@ import java.util.List;
 import es.oneoctopus.jamendoapp.R;
 import es.oneoctopus.jamendoapp.activities.PlayerActivity;
 import es.oneoctopus.jamendoapp.adapters.TracksAdapter;
-import es.oneoctopus.jamendoapp.api.Response.TracksResponse;
+import es.oneoctopus.jamendoapp.api.Responses.TracksResponse;
 import es.oneoctopus.jamendoapp.media.Playlist;
 import es.oneoctopus.jamendoapp.models.Track;
 import es.oneoctopus.jamendoapp.utils.Constants;
@@ -44,19 +42,17 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class Main extends BaseJamendoFragment {
+public class FeaturedSongs extends BaseJamendoFragment {
     private final String TAG = "Main";
     private ListView featuredList;
-    private Spinner featuredOptions;
-    // List doesn't implement Serializable
     private ArrayList<Track> featuredTracks = new ArrayList<>();
     private TracksAdapter tracksAdapter;
 
-    public Main() {
+    public FeaturedSongs() {
     }
 
-    public static Main newInstance() {
-        return new Main();
+    public static FeaturedSongs newInstance() {
+        return new FeaturedSongs();
     }
 
     @Override
@@ -64,11 +60,6 @@ public class Main extends BaseJamendoFragment {
         View root = inflater.inflate(R.layout.fragment_main, container, false);
 
         featuredList = (ListView) root.findViewById(R.id.featuredlist);
-        View featuredheader = View.inflate(getActivity(), R.layout.featured_header, null);
-        featuredOptions = (Spinner) featuredheader.findViewById(R.id.featuredoptions);
-        ArrayAdapter<String> featuredAdapter = new ArrayAdapter<>(getActivity(), R.layout.spinner_title, getResources().getStringArray(R.array.featured_home));
-        featuredOptions.setAdapter(featuredAdapter);
-        featuredList.addHeaderView(featuredheader, null, false);
 
         return root;
     }

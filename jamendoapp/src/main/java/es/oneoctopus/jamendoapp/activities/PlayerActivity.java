@@ -45,11 +45,15 @@ public class PlayerActivity extends BaseJamendoActivity {
     private final String TAG = "PlayerActivity";
     Handler handler = new Handler();
     Runnable trackbarRunnable;
+
     private ParallaxImageView trackImage;
     private TextView trackTitle;
     private TextView trackArtist;
     private ImageView playPause;
+    private ImageView previous;
+    private ImageView next;
     private SeekBar trackBar;
+
     private Track currentTrack;
     private Playlist playlist;
     private PlayService playService;
@@ -59,14 +63,15 @@ public class PlayerActivity extends BaseJamendoActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
-                case PlayService.PLAYER_START:
+                case PlayService.TRACK_START:
                     updateTrackbar = true;
                     updateTrackbar();
                     setPauseControl();
                     break;
 
-                case PlayService.PLAYER_END:
+                case PlayService.TRACK_END:
                     setPlayControl();
+                    resetTrackbar();
                     break;
             }
         }
@@ -101,6 +106,8 @@ public class PlayerActivity extends BaseJamendoActivity {
         trackTitle = (TextView) findViewById(R.id.titletrack);
         trackArtist = (TextView) findViewById(R.id.artistname);
         playPause = (ImageView) findViewById(R.id.playpausebutton);
+        next = (ImageView) findViewById(R.id.next);
+        previous = (ImageView) findViewById(R.id.previous);
         trackBar = (SeekBar) findViewById(R.id.trackbar);
 
         if (getIntent().getExtras() != null)
@@ -113,8 +120,8 @@ public class PlayerActivity extends BaseJamendoActivity {
 
         trackImage.registerSensorManager();
 
-        registerReceiver(broadcastReceiver, new IntentFilter(PlayService.PLAYER_END));
-        registerReceiver(broadcastReceiver, new IntentFilter(PlayService.PLAYER_START));
+        registerReceiver(broadcastReceiver, new IntentFilter(PlayService.TRACK_START));
+        registerReceiver(broadcastReceiver, new IntentFilter(PlayService.TRACK_END));
 
         if (playIntent == null) {
             playIntent = new Intent(this, PlayService.class);
@@ -147,7 +154,6 @@ public class PlayerActivity extends BaseJamendoActivity {
     private void setControls() {
 
         if (playService.isPlaying()) updateTrackbar = true;
-
         if (playService.isPlaying() && playService.currentTrackPlaying().getId().equals(currentTrack.getId()))
             setPauseControl();
 
@@ -197,11 +203,8 @@ public class PlayerActivity extends BaseJamendoActivity {
     }
 
     public void updateTrackStuff() {
-        if (!playlist.isLastTrack()) {
-            playlist.selectNextTrack();
-            currentTrack = playlist.getCurrentTrack();
-            updateUI();
-        }
+        currentTrack = playlist.getCurrentTrack();
+        updateUI();
     }
 
     /**
@@ -217,13 +220,16 @@ public class PlayerActivity extends BaseJamendoActivity {
                 public void run() {
                     if (isPlaying() && updateTrackbar) {
                         trackBar.setProgress(playService.getPosition());
-                        System.out.println("Duration: " + getDuration() + " Set position: " + playService.getPosition() + " Position now: " + trackBar.getProgress());
                         handler.postDelayed(this, 1000);
                     }
                 }
             };
             handler.postDelayed(trackbarRunnable, 1000);
         }
+    }
+
+    public void resetTrackbar() {
+        trackBar.setProgress(0);
     }
 
     public void updateUI() {

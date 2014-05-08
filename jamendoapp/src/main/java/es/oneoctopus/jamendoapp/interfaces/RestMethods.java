@@ -16,8 +16,9 @@
 
 package es.oneoctopus.jamendoapp.interfaces;
 
-import es.oneoctopus.jamendoapp.api.Response.ArtistResponse;
-import es.oneoctopus.jamendoapp.api.Response.TracksResponse;
+import es.oneoctopus.jamendoapp.api.Responses.AlbumResponse;
+import es.oneoctopus.jamendoapp.api.Responses.ArtistResponse;
+import es.oneoctopus.jamendoapp.api.Responses.TracksResponse;
 import retrofit.Callback;
 import retrofit.http.GET;
 import retrofit.http.Query;
@@ -41,4 +42,21 @@ public interface RestMethods {
             @Query("limit") int limit,
             @Query("include") String include,
             Callback<TracksResponse> callback);
+
+    @GET("/albums/")
+    void getPopularAlbums(
+            @Query("client_id") String clientid,
+            @Query("format") String format,
+            @Query("order") String order,
+            @Query("imagesize") int imagesize,
+            @Query("limit") int limit,
+            Callback<AlbumResponse> callback);
+
+    @GET("/artists/")
+    void getPopularArtists(
+            @Query("client_id") String clientid,
+            @Query("format") String format,
+            @Query("order") String order,
+            @Query("limit") int limit,
+            Callback<ArtistResponse> callback);
 }

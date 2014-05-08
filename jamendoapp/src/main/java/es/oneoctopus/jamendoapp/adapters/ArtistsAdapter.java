@@ -30,14 +30,14 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 import es.oneoctopus.jamendoapp.R;
-import es.oneoctopus.jamendoapp.models.Track;
+import es.oneoctopus.jamendoapp.models.Artist;
 
-public class TracksAdapter extends BaseAdapter {
+public class ArtistsAdapter extends BaseAdapter {
     private Activity activity;
-    private List<Track> items;
-    private Track track;
+    private List<Artist> items;
+    private Artist artist;
 
-    public TracksAdapter(Activity activity, List<Track> items) {
+    public ArtistsAdapter(Activity activity, List<Artist> items) {
         this.activity = activity;
         this.items = items;
     }
@@ -64,18 +64,18 @@ public class TracksAdapter extends BaseAdapter {
 
         if (convertView == null) {
             LayoutInflater ly = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            v = ly.inflate(R.layout.list_track, null);
+            v = ly.inflate(R.layout.list_artist, null);
         }
 
-        track = items.get(position);
+        artist = items.get(position);
 
-        ImageView cover = (ImageView) v.findViewById(R.id.trackcover);
-        TextView title = (TextView) v.findViewById(R.id.titletrack);
-        TextView artist = (TextView) v.findViewById(R.id.artistname);
+        ImageView image = (ImageView) v.findViewById(R.id.artistimage);
+        TextView title = (TextView) v.findViewById(R.id.artistname);
+        TextView since = (TextView) v.findViewById(R.id.injamendosince);
 
-        Picasso.with(activity).load(track.getAlbum_image()).into(cover);
-        title.setText(track.getName());
-        artist.setText(track.getArtist_name());
+        Picasso.with(activity).load(artist.getImage()).into(image);
+        title.setText(artist.getName());
+        since.setText(String.format(activity.getString(R.string.in_jamendo_since), artist.getJoindate()));
 
         return v;
     }

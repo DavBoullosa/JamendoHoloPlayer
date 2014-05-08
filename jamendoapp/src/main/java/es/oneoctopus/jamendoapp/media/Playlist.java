@@ -31,7 +31,7 @@ public class Playlist implements Serializable {
     private PlayMode playlistMode = NORMAL;
     private List<Track> currentPlaylist;
     private List<Track> backedPlaylist;
-    private int currentTrack = -1;
+    private int currentTrack = 0;
 
     public Playlist(List<Track> currentPlaylist) {
         this.currentPlaylist = currentPlaylist;
@@ -67,13 +67,17 @@ public class Playlist implements Serializable {
             currentTrack--;
             if (currentTrack < 0)
                 currentTrack = currentPlaylist.size() - 1;
+            System.out.println("PREVIOUS TRACK: " + currentTrack);
         }
     }
 
     public void selectNextTrack() {
-        if (!isEmpty()) {
+        if (!isEmpty() && currentTrack != currentPlaylist.size() - 1) {
             currentTrack++;
             currentTrack %= currentPlaylist.size();
+        } else {
+            currentTrack = -1;
+            System.out.println("Next track: -1");
         }
     }
 
@@ -87,12 +91,18 @@ public class Playlist implements Serializable {
     }
 
     public boolean isLastTrack() {
+        if (currentTrack == currentPlaylist.size() - 1) System.out.println("LAST TRACK");
         return currentTrack == currentPlaylist.size() - 1;
     }
 
     public boolean isOver() {
         if (currentTrack == -1) return true;
         else return false;
+    }
+
+    public void restartPlaylist() {
+        System.out.println("The playlist has been reseted, current track 0");
+        currentTrack = 0;
     }
 
     public void changePlaylistOrder() {
@@ -111,6 +121,4 @@ public class Playlist implements Serializable {
                 break;
         }
     }
-
-
 }
