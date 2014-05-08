@@ -38,7 +38,6 @@ import com.squareup.picasso.Picasso;
 
 import es.oneoctopus.jamendoapp.R;
 import es.oneoctopus.jamendoapp.media.Playlist;
-import es.oneoctopus.jamendoapp.models.Track;
 import es.oneoctopus.jamendoapp.services.PlayService;
 
 public class PlayerActivity extends BaseJamendoActivity {
@@ -54,7 +53,6 @@ public class PlayerActivity extends BaseJamendoActivity {
     private ImageView next;
     private SeekBar trackBar;
 
-    private Track currentTrack;
     private Playlist playlist;
     private PlayService playService;
 
@@ -63,6 +61,17 @@ public class PlayerActivity extends BaseJamendoActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
+
+                case PlayService.PLAYLIST_SET:
+                    updatePlayerInterface();
+                    setPlayControl();
+                    setControls();
+                    break;
+
+                case PlayService.TRACK_CHANGE:
+                    updatePlayerInterface();
+                    break;
+
                 case PlayService.TRACK_START:
                     updateTrackbar = true;
                     updateTrackbar();
@@ -70,9 +79,15 @@ public class PlayerActivity extends BaseJamendoActivity {
                     break;
 
                 case PlayService.TRACK_END:
+                    updateTrackbar = false;
                     setPlayControl();
                     resetTrackbar();
                     break;
+
+                case PlayService.PLAYLIST_END:
+                    updatePlayerInterface();
+                    setPlayControl();
+                    resetTrackbar();
             }
         }
     };
@@ -86,9 +101,6 @@ public class PlayerActivity extends BaseJamendoActivity {
             playService = binder.getService();
             playService.setPlaylist(playlist);
             boundToPlayService = true;
-            updateTrackStuff();
-            updateTrackbar();
-            setControls();
         }
 
         @Override
@@ -119,9 +131,7 @@ public class PlayerActivity extends BaseJamendoActivity {
         super.onResume();
 
         trackImage.registerSensorManager();
-
-        registerReceiver(broadcastReceiver, new IntentFilter(PlayService.TRACK_START));
-        registerReceiver(broadcastReceiver, new IntentFilter(PlayService.TRACK_END));
+        setReceivers();
 
         if (playIntent == null) {
             playIntent = new Intent(this, PlayService.class);
@@ -131,6 +141,14 @@ public class PlayerActivity extends BaseJamendoActivity {
 
         if (boundToPlayService && playService != null) updateTrackbar();
         if (boundToPlayService) setControls();
+    }
+
+    public void setReceivers() {
+        registerReceiver(broadcastReceiver, new IntentFilter(PlayService.TRACK_START));
+        registerReceiver(broadcastReceiver, new IntentFilter(PlayService.TRACK_END));
+        registerReceiver(broadcastReceiver, new IntentFilter(PlayService.TRACK_CHANGE));
+        registerReceiver(broadcastReceiver, new IntentFilter(PlayService.PLAYLIST_END));
+        registerReceiver(broadcastReceiver, new IntentFilter(PlayService.PLAYLIST_SET));
     }
 
     @Override
@@ -154,24 +172,16 @@ public class PlayerActivity extends BaseJamendoActivity {
     private void setControls() {
 
         if (playService.isPlaying()) updateTrackbar = true;
-        if (playService.isPlaying() && playService.currentTrackPlaying().getId().equals(currentTrack.getId()))
-            setPauseControl();
 
         playPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                if (playService.currentTrackPlaying() == null) {
+                if (playService.getCurrentTrack() == null) {
                     start();
                 } else {
-                    if (playService.currentTrackPlaying().getId().equals(currentTrack.getId())) {
-                        if (isPlaying()) pause();
-                        else restart();
-                    } else {
-                        playService.setPlaylist(playlist);
-                        playService.updateCurrentTrack();
-                        start();
-                    }
+                    playService.setPlaylist(playlist);
+                    start();
                 }
             }
         });
@@ -179,7 +189,7 @@ public class PlayerActivity extends BaseJamendoActivity {
         trackBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser && isPlaying()) playService.seek(progress);
+                if (fromUser && playService.isPlaying()) playService.seek(progress);
             }
 
             @Override
@@ -189,7 +199,7 @@ public class PlayerActivity extends BaseJamendoActivity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                if (!isPlaying()) playService.seek(seekBar.getProgress());
+                if (!playService.isPlaying()) playService.seek(seekBar.getProgress());
             }
         });
     }
@@ -202,9 +212,11 @@ public class PlayerActivity extends BaseJamendoActivity {
         playService.playPrev();
     }
 
-    public void updateTrackStuff() {
-        currentTrack = playlist.getCurrentTrack();
-        updateUI();
+    public void updatePlayerInterface() {
+        getActionBar().setTitle(playService.getCurrentTrack().getName());
+        Picasso.with(PlayerActivity.this).load(playService.getCurrentTrack().getAlbum_image()).into(trackImage);
+        trackTitle.setText(playService.getCurrentTrack().getName());
+        trackArtist.setText(playService.getCurrentTrack().getArtist_name());
     }
 
     /**
@@ -213,12 +225,12 @@ public class PlayerActivity extends BaseJamendoActivity {
      */
     public void updateTrackbar() {
 
-        if (playService.isPlaying() && (playService.currentTrackPlaying().getId().equals(currentTrack.getId())) || !isPlaying()) {
+        if (playService.isPlaying()) {
             trackBar.setMax(getDuration());
             trackbarRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    if (isPlaying() && updateTrackbar) {
+                    if (playService.isPlaying() && updateTrackbar) {
                         trackBar.setProgress(playService.getPosition());
                         handler.postDelayed(this, 1000);
                     }
@@ -230,13 +242,6 @@ public class PlayerActivity extends BaseJamendoActivity {
 
     public void resetTrackbar() {
         trackBar.setProgress(0);
-    }
-
-    public void updateUI() {
-        getActionBar().setTitle(currentTrack.getName());
-        Picasso.with(this).load(currentTrack.getAlbum_image()).into(trackImage);
-        trackTitle.setText(currentTrack.getName());
-        trackArtist.setText(currentTrack.getArtist_name());
     }
 
     @Override
@@ -283,17 +288,6 @@ public class PlayerActivity extends BaseJamendoActivity {
         if (playService != null && boundToPlayService && playService.isPlaying())
             return playService.getPosition();
         else return 0;
-    }
-
-    public void seekTo(int pos) {
-
-    }
-
-    public boolean isPlaying() {
-        if (playService != null && boundToPlayService)
-            return playService.isPlaying();
-        else
-            return false;
     }
 
     public int getBufferPercentage() {

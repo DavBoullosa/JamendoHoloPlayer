@@ -32,16 +32,17 @@ import es.oneoctopus.jamendoapp.media.Playlist;
 import es.oneoctopus.jamendoapp.models.Track;
 
 public class PlayService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnBufferingUpdateListener {
+    public static final String TRACK_CHANGE = "es.oneoctopus.jamendoapp.PlayService.action.TRACK_CHANGE";
     public static final String TRACK_START = "es.oneoctopus.jamendoapp.PlayService.action.TRACK_START";
     public static final String TRACK_END = "es.oneoctopus.jamendoapp.PlayService.action.TRACK_END";
     public static final String TRACK_BUFFERING = "es.oneoctopus.jamendoapp.PlayService.action.TRACK_BUFFERING";
+    public static final String PLAYLIST_SET = "es.oneoctopus.jamendoapp.PlayService.action.PLAYLIST_SET";
     public static final String PLAYLIST_END = "es.oneoctopus.jamendoapp.PlayService.action.PLAYLIST_END";
     public final String TAG = "PlayService";
     private final IBinder playBind = new PlayBinder();
     Intent commActivity;
     private MediaPlayer mediaPlayer;
     private Playlist currentPlaylist;
-    private Track currentTrack;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -73,6 +74,7 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
 
     public void setPlaylist(Playlist playlist) {
         this.currentPlaylist = playlist;
+        notifyToPlayer(PLAYLIST_SET);
     }
 
     public void playTrack() {
@@ -81,10 +83,8 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
             mediaPlayer.reset();
         }
 
-        updateCurrentTrack();
-
         try {
-            mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(currentTrack.getAudio()));
+            mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(currentPlaylist.getCurrentTrack().getAudio()));
         } catch (IOException e) {
             Log.e(TAG, "Setting DataSource", e);
         }
@@ -92,12 +92,11 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
         mediaPlayer.prepareAsync();
     }
 
-    public void updateCurrentTrack() {
-        currentTrack = currentPlaylist.getCurrentTrack();
-    }
-
-    public Track currentTrackPlaying() {
-        return currentTrack;
+    @Override
+    public void onPrepared(MediaPlayer mp) {
+        mp.start();
+        commActivity = new Intent(TRACK_START);
+        getApplicationContext().sendBroadcast(commActivity);
     }
 
     @Override
@@ -106,28 +105,24 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
         currentPlaylist.selectNextTrack();
 
         if (currentPlaylist.isOver()) {
+            currentPlaylist.restartPlaylist();
             commActivity = new Intent(PLAYLIST_END);
             sendBroadcast(commActivity);
-            currentPlaylist.restartPlaylist();
-            playTrack();
         } else {
+            commActivity = new Intent(TRACK_END);
+            sendBroadcast(commActivity);
+            notifyToPlayer(TRACK_CHANGE);
             playTrack();
         }
+    }
 
-        commActivity = new Intent(TRACK_END);
-        sendBroadcast(commActivity);
+    public Track getCurrentTrack() {
+        return currentPlaylist.getCurrentTrack();
     }
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
         return false;
-    }
-
-    @Override
-    public void onPrepared(MediaPlayer mp) {
-        mp.start();
-        commActivity = new Intent(TRACK_START);
-        getApplicationContext().sendBroadcast(commActivity);
     }
 
     public int getPosition() {
@@ -156,12 +151,19 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
 
     public void playPrev() {
         currentPlaylist.selectPreviousTrack();
+        notifyToPlayer(TRACK_CHANGE);
         playTrack();
     }
 
     public void playNext() {
         currentPlaylist.selectNextTrack();
+        notifyToPlayer(TRACK_CHANGE);
         playTrack();
+    }
+
+    public void notifyToPlayer(String notification) {
+        commActivity = new Intent(notification);
+        sendBroadcast(commActivity);
     }
 
     @Override
