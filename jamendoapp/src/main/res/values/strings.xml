@@ -37,7 +37,7 @@
     <string name="hello_world">Hello world!</string>
 
     <string name="title_activity_artist">Artist Name</string>
-    <string name="title_activity_track">Track name</string>
+    <string name="title_activity_track"></string>
 
     <string name="in_jamendo_since">In Jamendo since %1$s</string>
 
