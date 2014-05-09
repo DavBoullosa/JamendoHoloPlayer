@@ -12,8 +12,7 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  -->
-
+-->
 <resources>
 
     <string name="app_name">Jamendo</string>
@@ -29,19 +28,18 @@
     <string name="featuredsongs">Featured songs</string>
     <string name="featuredalbums">Featured albums</string>
     <string name="featuredartists">Featured artists</string>
-
     <string name="action_example">Example action</string>
     <string name="action_settings">Settings</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_main2">MainActivity</string>
     <string name="hello_world">Hello world!</string>
-
     <string name="title_activity_artist">Artist Name</string>
     <string name="title_activity_track"></string>
-
     <string name="in_jamendo_since">In Jamendo since %1$s</string>
-
     <string name="error">Ops! Something went wrong!</string>
-
+    <string name="now_playing_notification_ticker">Now playing: %1$s by %2$s</string>
+    <string name="now_playing_notification_placeholder_text_template">You said %1$s and lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam non enim magna. Morbi dictum, velit vel semper venenatis, magna odio volutpat velit, at ullamcorper nulla lacus sed turpis. Pellentesque vitae metus elit, nec tincidunt tellus. Integer sed nisl sem, ullamcorper ornare lacus. Duis ac mauris sed massa congue volutpat. Donec sed erat sit amet turpis viverra rhoncus sit amet nec magna. Donec lacinia ligula at libero volutpat volutpat nec nec tortor.</string>
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
 
 </resources>

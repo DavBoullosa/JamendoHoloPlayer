@@ -32,6 +32,7 @@ public class Playlist implements Serializable {
     private List<Track> currentPlaylist;
     private List<Track> backedPlaylist;
     private int currentTrack = 0;
+    private boolean firstPlayed = true;
 
     public Playlist(List<Track> currentPlaylist) {
         this.currentPlaylist = currentPlaylist;
@@ -86,6 +87,14 @@ public class Playlist implements Serializable {
 
     public void selectTrack(int position) {
         currentTrack = position;
+    }
+
+    public boolean isPlaylistFirstPlayed() {
+        return firstPlayed;
+    }
+
+    public void setIsPlaylistFirstPlayed(boolean isPlaylistFirstPlayed) {
+        this.firstPlayed = isPlaylistFirstPlayed;
     }
 
     public Track getCurrentTrack() {

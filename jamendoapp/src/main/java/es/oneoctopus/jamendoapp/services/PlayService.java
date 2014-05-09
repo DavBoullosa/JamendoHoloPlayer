@@ -18,6 +18,8 @@ package es.oneoctopus.jamendoapp.services;
 
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -26,23 +28,31 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+
 import java.io.IOException;
 
 import es.oneoctopus.jamendoapp.media.Playlist;
 import es.oneoctopus.jamendoapp.models.Track;
+import es.oneoctopus.jamendoapp.notifications.NowPlayingNotification;
 
 public class PlayService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnBufferingUpdateListener {
     public static final String TRACK_CHANGE = "es.oneoctopus.jamendoapp.PlayService.action.TRACK_CHANGE";
     public static final String TRACK_START = "es.oneoctopus.jamendoapp.PlayService.action.TRACK_START";
     public static final String TRACK_END = "es.oneoctopus.jamendoapp.PlayService.action.TRACK_END";
     public static final String TRACK_BUFFERING = "es.oneoctopus.jamendoapp.PlayService.action.TRACK_BUFFERING";
-    public static final String PLAYLIST_SET = "es.oneoctopus.jamendoapp.PlayService.action.PLAYLIST_SET";
+    public static final String PLAYLIST_LOADED = "es.oneoctopus.jamendoapp.PlayService.action.PLAYLIST_LOADED";
+    public static final String PLAYLIST_STARTED = "es.oneoctopus.jamendoapp.PlayService.action.PLAYLIST_STARTED";
     public static final String PLAYLIST_END = "es.oneoctopus.jamendoapp.PlayService.action.PLAYLIST_END";
+
     public final String TAG = "PlayService";
     private final IBinder playBind = new PlayBinder();
-    Intent commActivity;
+    private Intent commActivity;
     private MediaPlayer mediaPlayer;
     private Playlist currentPlaylist;
+    private Playlist loadedPlaylist;
+    private boolean canBePaused;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -74,7 +84,19 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
 
     public void setPlaylist(Playlist playlist) {
         this.currentPlaylist = playlist;
-        notifyToPlayer(PLAYLIST_SET);
+    }
+
+    public void loadPlaylist(Playlist playlist) {
+        this.loadedPlaylist = playlist;
+        notifyToPlayer(PLAYLIST_LOADED);
+    }
+
+    public Track getLoadedTrack() {
+        return loadedPlaylist.getCurrentTrack();
+    }
+
+    public void setLoadedAsCurrent() {
+        currentPlaylist = loadedPlaylist;
     }
 
     public void playTrack() {
@@ -95,22 +117,27 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
     @Override
     public void onPrepared(MediaPlayer mp) {
         mp.start();
-        commActivity = new Intent(TRACK_START);
-        getApplicationContext().sendBroadcast(commActivity);
+        showNotification(true);
+        setCanBePaused(true);
+        if (currentPlaylist.isPlaylistFirstPlayed()) {
+            notifyToPlayer(PLAYLIST_STARTED);
+            currentPlaylist.setIsPlaylistFirstPlayed(false);
+        }
+        notifyToPlayer(TRACK_START);
     }
 
     @Override
     public void onCompletion(MediaPlayer mp) {
         mediaPlayer.reset();
+        setCanBePaused(false);
+        showNotification(false);
         currentPlaylist.selectNextTrack();
 
         if (currentPlaylist.isOver()) {
             currentPlaylist.restartPlaylist();
-            commActivity = new Intent(PLAYLIST_END);
-            sendBroadcast(commActivity);
+            notifyToPlayer(PLAYLIST_END);
         } else {
-            commActivity = new Intent(TRACK_END);
-            sendBroadcast(commActivity);
+            notifyToPlayer(TRACK_END);
             notifyToPlayer(TRACK_CHANGE);
             playTrack();
         }
@@ -118,6 +145,10 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
 
     public Track getCurrentTrack() {
         return currentPlaylist.getCurrentTrack();
+    }
+
+    public Playlist getCurrentPlaylist() {
+        return currentPlaylist;
     }
 
     @Override
@@ -139,6 +170,7 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
 
     public void pausePlayer() {
         mediaPlayer.pause();
+        showNotification(false);
     }
 
     public void seek(int posn) {
@@ -147,6 +179,7 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
 
     public void go() {
         mediaPlayer.start();
+        showNotification(true);
     }
 
     public void playPrev() {
@@ -174,9 +207,40 @@ public class PlayService extends Service implements MediaPlayer.OnPreparedListen
         sendBroadcast(commActivity);
     }
 
+    public void showNotification(boolean show) {
+        if (show) {
+            Picasso.with(getApplicationContext()).load(currentPlaylist.getCurrentTrack().getAlbum_image()).into(new Target() {
+
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                    NowPlayingNotification.notify(getApplicationContext(), currentPlaylist.getCurrentTrack().getName(), currentPlaylist.getCurrentTrack().getArtist_name(), bitmap);
+                }
+
+                @Override
+                public void onBitmapFailed(final Drawable errorDrawable) {
+                    Log.d("TAG", "FAILED");
+                }
+
+                @Override
+                public void onPrepareLoad(final Drawable placeHolderDrawable) {
+                    Log.d("TAG", "Prepare Load");
+                }
+            });
+        } else
+            NowPlayingNotification.cancel(getApplicationContext());
+    }
+
     @Override
     public void onBufferingUpdate(MediaPlayer mp, int percent) {
 
+    }
+
+    public boolean canBePaused() {
+        return canBePaused;
+    }
+
+    private void setCanBePaused(boolean canBePaused) {
+        this.canBePaused = canBePaused;
     }
 
     public class PlayBinder extends Binder {
