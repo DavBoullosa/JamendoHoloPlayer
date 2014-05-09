@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Jamendo.iml" filepath="$PROJECT_DIR$/Jamendo.iml" />
-      <module fileurl="file://$PROJECT_DIR$/jamendoapp/jamendoapp.iml" filepath="$PROJECT_DIR$/jamendoapp/jamendoapp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jamendoholoplayer/jamendoholoplayer.iml" filepath="$PROJECT_DIR$/jamendoholoplayer/jamendoholoplayer.iml" />
       <module fileurl="file://$PROJECT_DIR$/motion/motion.iml" filepath="$PROJECT_DIR$/motion/motion.iml" />
     </modules>
   </component>
