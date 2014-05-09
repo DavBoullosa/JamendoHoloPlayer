@@ -47,15 +47,6 @@ public class NowPlayingNotification {
     /**
      * Shows the notification, or updates a previously shown notification of
      * this type, with the given parameters.
-     * <p/>
-     * TODO: Customize this method's arguments to present relevant content in
-     * the notification.
-     * <p/>
-     * TODO: Customize the contents of this method to tweak the behavior and
-     * presentation of now playing notifications. Make
-     * sure to follow the
-     * <a href="https://developer.android.com/design/patterns/notifications.html">
-     * Notification design guidelines</a> when doing so.
      *
      * @see #cancel(Context)
      */
@@ -70,40 +61,13 @@ public class NowPlayingNotification {
 
         builder = new NotificationCompat.Builder(context)
 
-                // Set appropriate defaults for the notification light, sound,
-                // and vibration.
                 .setDefaults(Notification.STREAM_DEFAULT)
-
-                        // Set required fields, including the small icon, the
-                        // notification title, and text.
                 .setSmallIcon(R.drawable.ic_launcher)
                 .setContentTitle(trackTitle)
                 .setContentText(artistName)
-
-                        // All fields below this line are optional.
-
-                        // Use a default priority (recognized on devices running Android
-                        // 4.1 or later)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-
-                        // Provide a large icon, shown with the notification in the
-                        // notification drawer on devices running Android 3.0 or later.
                 .setLargeIcon(image)
-
-                        // Set ticker text (preview) information for this notification.
                 .setTicker(ticker)
-
-                        // If this notification relates to a past or upcoming event, you
-                        // should set the relevant time information using the setWhen
-                        // method below. If this call is omitted, the notification's
-                        // timestamp will by set to the time at which it was shown.
-                        // TODO: Call setWhen if this notification relates to a past or
-                        // upcoming event. The sole argument to this method should be
-                        // the notification timestamp in milliseconds.
-                        //.setWhen(...)
-
-                        // Set the pending intent to be initiated when the user touches
-                        // the notification.
                 .setContentIntent(
                         PendingIntent.getActivity(
                                 context,
@@ -111,9 +75,6 @@ public class NowPlayingNotification {
                                 goToPlayerActivity,
                                 PendingIntent.FLAG_UPDATE_CURRENT)
                 )
-
-                        // Show an expanded photo on devices running Android 4.1 or
-                        // later.
                 .setStyle(new NotificationCompat.BigPictureStyle().bigPicture(image)
                         .setBigContentTitle(trackTitle)
                         .setSummaryText(artistName))
@@ -157,7 +118,7 @@ public class NowPlayingNotification {
 
     /**
      * Cancels any notifications of this type previously shown using
-     * {@link #notify(Context, String, int)}.
+     * {@link #notify(android.content.Context, android.app.Notification)}
      */
     @TargetApi(Build.VERSION_CODES.ECLAIR)
     public static void cancel(final Context context) {
