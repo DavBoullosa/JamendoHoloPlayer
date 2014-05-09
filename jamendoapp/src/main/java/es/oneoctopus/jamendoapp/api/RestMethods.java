@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package es.oneoctopus.jamendoapp.interfaces;
+package es.oneoctopus.jamendoapp.api;
 
 import es.oneoctopus.jamendoapp.api.Responses.AlbumResponse;
 import es.oneoctopus.jamendoapp.api.Responses.ArtistResponse;
@@ -59,4 +59,14 @@ public interface RestMethods {
             @Query("order") String order,
             @Query("limit") int limit,
             Callback<ArtistResponse> callback);
+
+    @GET("/albums/")
+    void getLastAlbumsByArtistId(
+            @Query("client_id") String clientid,
+            @Query("format") String format,
+            @Query("order") String order,
+            @Query("artist_id") long artistId,
+            @Query("imagesize") int imagesize,
+            Callback<AlbumResponse> callback);
+
 }

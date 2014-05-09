@@ -20,14 +20,20 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nvanbenschoten.motion.ParallaxImageView;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import es.oneoctopus.jamendoapp.R;
-import es.oneoctopus.jamendoapp.api.Responses.ArtistResponse;
+import es.oneoctopus.jamendoapp.api.Responses.AlbumResponse;
+import es.oneoctopus.jamendoapp.models.Album;
 import es.oneoctopus.jamendoapp.models.Artist;
+import es.oneoctopus.jamendoapp.models.Track;
 import es.oneoctopus.jamendoapp.utils.Constants;
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -36,43 +42,67 @@ import retrofit.client.Response;
 public class ArtistActivity extends BaseJamendoActivity {
     private final String TAG = "ArtistActivity";
     private Artist artist;
-    private long id;
-    private ImageView groupimage;
+    private List<Album> artistAlbums = new ArrayList<>();
+    private List<Track> artistTracks = new ArrayList<>();
+    private ParallaxImageView groupimage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_artist);
 
-        groupimage = (ImageView) findViewById(R.id.groupimage);
+        groupimage = (ParallaxImageView) findViewById(R.id.groupimage);
 
-        id = getIntent().getLongExtra("id", -1);
-        if (id != -1) getArtist();
+        artist = (Artist) getIntent().getSerializableExtra("artist");
+        if (artist != null) updateArtist();
     }
 
-    public void getArtist() {
-        getApi().getArtistById(Constants.CLIENT_ID, "json", id, new Callback<ArtistResponse>() {
+    @Override
+    protected void onResume() {
+        super.onResume();
 
+        groupimage.registerSensorManager();
+    }
+
+    public void getLastAlbums() {
+        getApi().getLastAlbumsByArtistId(Constants.CLIENT_ID, Constants.API_FORMAT, "releasedate", artist.getId(), Constants.IMAGES_SIZE, new Callback<AlbumResponse>() {
             @Override
-            public void success(ArtistResponse artistResponse, Response response) {
-                if (artistResponse.getResults().size() > 0) {
+            public void success(AlbumResponse albumResponse, Response response) {
+                if (albumResponse.getResults().size() > 0) {
                     ObjectMapper mapper = new ObjectMapper();
-                    artist = mapper.convertValue(artistResponse.getResults().get(0), Artist.class);
-                    updateUI();
+                    for (int i = 0; i < albumResponse.getResults().size(); i++)
+                        artistAlbums.add(mapper.convertValue(albumResponse.getResults().get(i), Album.class));
+                    setAlbumsList();
                 }
             }
 
             @Override
             public void failure(RetrofitError error) {
+                Toast.makeText(ArtistActivity.this, getString(R.string.error), Toast.LENGTH_LONG).show();
                 Log.e(TAG, error.getMessage());
             }
         });
     }
 
-    public void updateUI() {
+    private void setAlbumsList() {
+    }
+
+    public void updateArtist() {
         getActionBar().setTitle(artist.getName());
         Picasso.with(this).load(artist.getImage()).into(groupimage);
     }
+
+    public void updateArtistAlbums() {
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        groupimage.unregisterSensorManager();
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

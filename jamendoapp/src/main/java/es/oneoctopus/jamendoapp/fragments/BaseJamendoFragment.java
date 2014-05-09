@@ -19,7 +19,7 @@ package es.oneoctopus.jamendoapp.fragments;
 import android.support.v4.app.Fragment;
 
 import es.oneoctopus.jamendoapp.api.JamendoService;
-import es.oneoctopus.jamendoapp.interfaces.RestMethods;
+import es.oneoctopus.jamendoapp.api.RestMethods;
 
 public class BaseJamendoFragment extends Fragment {
     private RestMethods api;

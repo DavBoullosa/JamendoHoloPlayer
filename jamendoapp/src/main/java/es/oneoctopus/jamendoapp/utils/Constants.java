@@ -20,7 +20,9 @@ public class Constants {
 
     // Only to test read methods
     public static final String CLIENT_ID = "b6747d04";
+    public static final String API_FORMAT = "json";
     public static final int LIST_LIMIT = 15;
     public static final int IMAGES_SIZE = 600;
     private static final String API_URL = "http://api.jamendo.com/v3.0";
+
 }

@@ -16,7 +16,6 @@
 
 package es.oneoctopus.jamendoapp.api;
 
-import es.oneoctopus.jamendoapp.interfaces.RestMethods;
 import retrofit.RestAdapter;
 import retrofit.converter.JacksonConverter;
 

@@ -19,7 +19,7 @@ package es.oneoctopus.jamendoapp.activities;
 import android.support.v7.app.ActionBarActivity;
 
 import es.oneoctopus.jamendoapp.api.JamendoService;
-import es.oneoctopus.jamendoapp.interfaces.RestMethods;
+import es.oneoctopus.jamendoapp.api.RestMethods;
 
 public class BaseJamendoActivity extends ActionBarActivity {
     private RestMethods api;
