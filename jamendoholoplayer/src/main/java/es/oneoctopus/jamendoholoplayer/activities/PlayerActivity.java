@@ -48,6 +48,7 @@ public class PlayerActivity extends BaseJamendoActivity {
     private ParallaxImageView trackImage;
     private TextView trackTitle;
     private TextView trackArtist;
+    private TextView timeLeft;
     private ImageView playPause;
     private ImageView previous;
     private ImageView next;
@@ -143,6 +144,7 @@ public class PlayerActivity extends BaseJamendoActivity {
         next = (ImageView) findViewById(R.id.next);
         previous = (ImageView) findViewById(R.id.previous);
         trackBar = (SeekBar) findViewById(R.id.trackbar);
+        timeLeft = (TextView) findViewById(R.id.timeleft);
 
         if (getIntent().getExtras() != null) {
             if (getIntent().getExtras().containsKey("playlist"))
@@ -245,6 +247,7 @@ public class PlayerActivity extends BaseJamendoActivity {
         previous.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                playService.setLoadedAsCurrent();
                 playService.playPrev();
             }
         });
@@ -252,6 +255,7 @@ public class PlayerActivity extends BaseJamendoActivity {
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                playService.setLoadedAsCurrent();
                 playService.playNext();
             }
         });
@@ -307,6 +311,8 @@ public class PlayerActivity extends BaseJamendoActivity {
                 public void run() {
                     if (playService.isPlaying() && updateTrackbar) {
                         trackBar.setProgress(playService.getPosition());
+                        //TODO: show correct time left
+                        timeLeft.setText("-" + String.valueOf((playService.getDuration() - playService.getPosition()) / 100));
                         handler.postDelayed(this, 1000);
                     }
                 }
@@ -322,7 +328,7 @@ public class PlayerActivity extends BaseJamendoActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.artist, menu);
+        getMenuInflater().inflate(R.menu.player, menu);
         return true;
     }
 
@@ -331,6 +337,9 @@ public class PlayerActivity extends BaseJamendoActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+
+        //TODO: handle download item
+
         int id = item.getItemId();
         switch (id) {
             case R.id.action_settings:
