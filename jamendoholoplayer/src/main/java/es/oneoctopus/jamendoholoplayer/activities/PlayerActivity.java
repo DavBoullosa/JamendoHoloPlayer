@@ -39,6 +39,7 @@ import com.squareup.picasso.Picasso;
 import es.oneoctopus.jamendoholoplayer.R;
 import es.oneoctopus.jamendoholoplayer.media.Playlist;
 import es.oneoctopus.jamendoholoplayer.services.PlayService;
+import es.oneoctopus.jamendoholoplayer.utils.TrackDownloader;
 
 public class PlayerActivity extends BaseJamendoActivity {
     private final String TAG = "PlayerActivity";
@@ -58,6 +59,7 @@ public class PlayerActivity extends BaseJamendoActivity {
     private PlayService playService;
     private boolean fromNotification = false;
     private boolean restart = false;
+    private TrackDownloader trackDownloader;
 
     private boolean updateTrackbar = false;
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -338,10 +340,17 @@ public class PlayerActivity extends BaseJamendoActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
 
-        //TODO: handle download item
-
         int id = item.getItemId();
         switch (id) {
+            case R.id.action_download:
+                if (trackDownloader == null) {
+                    trackDownloader = new TrackDownloader(getApplicationContext(), playService.getLoadedTrack());
+                    trackDownloader.startDownload();
+                } else {
+                    trackDownloader.setTrack(playService.getLoadedTrack());
+                    trackDownloader.startDownload();
+                }
+                break;
             case R.id.action_settings:
                 return true;
         }
