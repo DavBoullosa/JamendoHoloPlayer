@@ -43,6 +43,7 @@
     <string name="next">Next</string>
     <string name="download">Download</string>
     <string name="downloading">Downloading %1$s</string>
+    <string name="download_dir">/Jamendo/%1$s/%2$s/</string>
     <string name="mp3format">.mp3</string>
 
 </resources>

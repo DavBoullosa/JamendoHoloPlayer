@@ -43,8 +43,7 @@ public class TrackDownloader {
         request.setAllowedNetworkTypes(android.app.DownloadManager.Request.NETWORK_WIFI);
         request.setTitle(String.format(cx.getString(R.string.downloading), track.getName()));
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        //TODO: Improve location and name
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, track.getName() + cx.getString(R.string.mp3format));
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_MUSIC + String.format(cx.getString(R.string.download_dir), track.getArtist_name(), track.getAlbum_name()), track.getName() + cx.getString(R.string.mp3format));
 
         DownloadManager downloadManager = (DownloadManager) cx.getSystemService(Context.DOWNLOAD_SERVICE);
         downloadId = downloadManager.enqueue(request);
