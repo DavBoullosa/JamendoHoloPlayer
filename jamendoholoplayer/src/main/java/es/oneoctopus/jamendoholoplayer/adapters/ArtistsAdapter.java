@@ -73,7 +73,13 @@ public class ArtistsAdapter extends BaseAdapter {
         TextView title = (TextView) v.findViewById(R.id.artistname);
         TextView since = (TextView) v.findViewById(R.id.injamendosince);
 
-        Picasso.with(activity).load(artist.getImage()).into(image);
+        if (!artist.getImage().isEmpty())
+            Picasso.with(activity).load(artist.getImage()).into(image);
+
+            //TODO: change this drawable
+        else image.setImageResource(R.drawable.playicon);
+
+
         title.setText(artist.getName());
         since.setText(String.format(activity.getString(R.string.in_jamendo_since), artist.getJoindate()));
 

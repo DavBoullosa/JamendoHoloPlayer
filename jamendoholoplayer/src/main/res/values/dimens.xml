@@ -27,4 +27,5 @@
     <dimen name="navigation_drawer_width">240dp</dimen>
     <!-- Height of the bottom navigation / system bar. -->
     <dimen name="navigation_bar_height">48dp</dimen>
+    <dimen name="artist_cover_height">250dp</dimen>
 </resources>

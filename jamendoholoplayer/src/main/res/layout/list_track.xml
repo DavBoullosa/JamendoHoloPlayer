@@ -20,10 +20,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/item_background"
     android:orientation="horizontal"
-    android:padding="@dimen/minspace">
+    android:paddingBottom="@dimen/minspace"
+    android:paddingLeft="@dimen/littlespace"
+    android:paddingRight="@dimen/littlespace"
+    android:paddingTop="@dimen/minspace">
 
-    <ImageView
+<ImageView
         android:id="@+id/trackcover"
         android:layout_width="70dp"
         android:layout_height="70dp"

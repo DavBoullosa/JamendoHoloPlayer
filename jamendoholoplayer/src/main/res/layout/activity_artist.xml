@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+
 <!--
   ~ Copyright (c) 2014 David Alejandro Fernández Sancho
   ~
@@ -14,28 +16,11 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:parallax="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+
+<com.nirhart.parallaxscroll.views.ParallaxListView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/parallaxscroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="es.oneoctopus.jamendoholoplayer.ArtistFragment">
-
-    <com.nvanbenschoten.motion.ParallaxImageView
-        android:id="@+id/groupimage"
-        android:layout_width="match_parent"
-        android:layout_height="400dp"
-        android:layout_marginLeft="0dp"
-        android:layout_marginTop="0dp"
-        android:cropToPadding="false"
-        android:scaleType="centerCrop"
-        parallax:forwardTiltOffset="0.5"
-        parallax:tiltSensitivity="1.6" />
-
-    <ListView
-        android:id="@+id/popularsongs"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
-</LinearLayout>
+    android:headerDividersEnabled="false"
+    app:parallax_factor="1.9" />

@@ -16,11 +16,13 @@
 
 package es.oneoctopus.jamendoholoplayer.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -29,6 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 
 import es.oneoctopus.jamendoholoplayer.R;
+import es.oneoctopus.jamendoholoplayer.activities.ArtistActivity;
 import es.oneoctopus.jamendoholoplayer.adapters.ArtistsAdapter;
 import es.oneoctopus.jamendoholoplayer.api.Responses.ArtistResponse;
 import es.oneoctopus.jamendoholoplayer.models.Artist;
@@ -91,21 +94,15 @@ public class FeaturedArtists extends BaseJamendoFragment {
     public void setAdapterAndListener() {
         artistsAdapter = new ArtistsAdapter(getActivity(), featuredArtists);
         featuredList.setAdapter(artistsAdapter);
-//        featuredList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                Intent goToTrackActivity = new Intent(getActivity(), PlayerActivity.class);
-//
-//                Bundle data = new Bundle();
-//                List<Track> tracksList = new ArrayList<>();
-//                tracksList.add((Track) parent.getItemAtPosition(position));
-//                Playlist playlist = new Playlist(tracksList);
-//                data.putSerializable("playlist", playlist);
-//
-//                goToTrackActivity.putExtras(data);
-//                startActivity(goToTrackActivity);
-//            }
-//        });
+
+        featuredList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent goToArtistActivity = new Intent(getActivity(), ArtistActivity.class);
+                goToArtistActivity.putExtra("artist", (Artist) parent.getItemAtPosition(position));
+                startActivity(goToArtistActivity);
+            }
+        });
     }
 
     @Override

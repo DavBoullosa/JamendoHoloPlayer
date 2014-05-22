@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 @JsonRootName(value = "result")
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -46,6 +48,18 @@ public class Artist implements Serializable {
     }
 
     public void setImage(String image) {
+
+        /*
+        Apparently Picasso doesn't handle right URL containing whitespaces, which is kinda weird,
+        so we replace them. This can't be avoided if other library is used.
+         */
+
+        try {
+            URI imageUri = new URI(image.replace(" ", "%20"));
+            image = imageUri.toString();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
         this.image = image;
     }
 
