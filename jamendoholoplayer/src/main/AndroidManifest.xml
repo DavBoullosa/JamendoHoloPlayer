@@ -17,11 +17,12 @@
     package="es.oneoctopus.jamendoholoplayer"
     android:versionCode="1"
     android:versionName="0.1">
-    >
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
@@ -40,7 +41,8 @@
         <activity
             android:name=".activities.ArtistActivity"
             android:label="@string/title_activity_artist"
-            android:parentActivityName=".activities.MainActivity">
+            android:parentActivityName=".activities.MainActivity"
+            android:theme="@style/JamendoThemeTranslucentActionBar">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
@@ -62,7 +64,5 @@
 
         <service android:name=".services.PlayService" />
     </application>
-
-    <uses-permission android:name="android.permission.VIBRATE" />
 
 </manifest>

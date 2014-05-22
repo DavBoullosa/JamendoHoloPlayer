@@ -16,21 +16,30 @@
 
 package es.oneoctopus.jamendoholoplayer.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nvanbenschoten.motion.ParallaxImageView;
+import com.nirhart.parallaxscroll.views.ParallaxListView;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import es.oneoctopus.jamendoholoplayer.R;
+import es.oneoctopus.jamendoholoplayer.adapters.TracksAdapter;
 import es.oneoctopus.jamendoholoplayer.api.Responses.AlbumResponse;
+import es.oneoctopus.jamendoholoplayer.api.Responses.TracksResponse;
+import es.oneoctopus.jamendoholoplayer.media.Playlist;
 import es.oneoctopus.jamendoholoplayer.models.Album;
 import es.oneoctopus.jamendoholoplayer.models.Artist;
 import es.oneoctopus.jamendoholoplayer.models.Track;
@@ -42,26 +51,66 @@ import retrofit.client.Response;
 public class ArtistActivity extends BaseJamendoActivity {
     private final String TAG = "ArtistActivity";
     private Artist artist;
+
     private List<Album> artistAlbums = new ArrayList<>();
     private List<Track> artistTracks = new ArrayList<>();
-    private ParallaxImageView groupimage;
+
+    private ParallaxListView popularSongs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_artist);
 
-        groupimage = (ParallaxImageView) findViewById(R.id.groupimage);
+        popularSongs = (ParallaxListView) findViewById(R.id.parallaxscroll);
 
         artist = (Artist) getIntent().getSerializableExtra("artist");
         if (artist != null) updateArtist();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+    public void updateArtist() {
+        getActionBar().setTitle(artist.getName());
 
-        groupimage.registerSensorManager();
+        // Parallaxed header
+        ImageView artistImage = new ImageView(this);
+        artistImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        AbsListView.LayoutParams params = new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) getResources().getDimension(R.dimen.artist_cover_height));
+        artistImage.setLayoutParams(params);
+
+        if (!artist.getImage().isEmpty())
+            Picasso.with(this).load(artist.getImage()).into(artistImage);
+
+            //TODO: change this drawable
+        else artistImage.setImageResource(R.drawable.playicon);
+
+        popularSongs.addParallaxedHeaderView(artistImage, null, false);
+
+        // Title
+
+        View popularSongsTitle = getLayoutInflater().inflate(R.layout.header_listview_popularsongs, null);
+        popularSongs.addHeaderView(popularSongsTitle, null, false);
+
+        getPopularSongs();
+    }
+
+    public void getPopularSongs() {
+        getApi().getPopularSongsByArtistId(Constants.CLIENT_ID, Constants.API_FORMAT, artist.getId(), "listens_month", Constants.IMAGES_SIZE, 5, "stats", new Callback<TracksResponse>() {
+
+            @Override
+            public void success(TracksResponse tracksResponse, Response response) {
+                if (tracksResponse.getResults().size() > 0) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    for (int i = 0; i < tracksResponse.getResults().size(); i++)
+                        artistTracks.add(mapper.convertValue(tracksResponse.getResults().get(i), Track.class));
+                    setArtistTracks();
+                }
+            }
+
+            @Override
+            public void failure(RetrofitError retrofitError) {
+
+            }
+        });
     }
 
     public void getLastAlbums() {
@@ -87,22 +136,32 @@ public class ArtistActivity extends BaseJamendoActivity {
     private void setAlbumsList() {
     }
 
-    public void updateArtist() {
-        getActionBar().setTitle(artist.getName());
-        Picasso.with(this).load(artist.getImage()).into(groupimage);
-    }
-
     public void updateArtistAlbums() {
 
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
+    public void setArtistTracks() {
+        TracksAdapter tracksAdapter = new TracksAdapter(this, artistTracks);
+        popularSongs.setAdapter(tracksAdapter);
 
-        groupimage.unregisterSensorManager();
+        popularSongs.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                Intent goToPlayActivity = new Intent(ArtistActivity.this, PlayerActivity.class);
+                Bundle data = new Bundle();
+                List<Track> tracksList = new ArrayList<>();
+                // Avoiding listview headers. Position 0 is the first header, pos 1 the second one
+                for (int aux = 2; aux < parent.getCount(); aux++)
+                    tracksList.add((Track) parent.getItemAtPosition(aux));
+                // Same way, the real position of the song is position-2
+                Playlist playlist = new Playlist(tracksList, position - 2);
+                data.putSerializable("playlist", playlist);
+                goToPlayActivity.putExtras(data);
+                startActivity(goToPlayActivity);
+            }
+        });
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -1,1 +1,1 @@
-include ':motion', 'jamendoholoplayer'
+include 'jamendoholoplayer', ':motion', ':ParallaxScroll'

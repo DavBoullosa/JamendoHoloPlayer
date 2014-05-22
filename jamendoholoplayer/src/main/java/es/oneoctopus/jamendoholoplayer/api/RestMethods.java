@@ -69,4 +69,15 @@ public interface RestMethods {
             @Query("imagesize") int imagesize,
             Callback<AlbumResponse> callback);
 
+    @GET("/tracks/")
+    void getPopularSongsByArtistId(
+            @Query("client_id") String clientid,
+            @Query("format") String format,
+            @Query("artist_id") long artistid,
+            @Query("order") String order,
+            @Query("imagesize") int imagesize,
+            @Query("limit") int limit,
+            @Query("include") String include,
+            Callback<TracksResponse> callback);
+
 }

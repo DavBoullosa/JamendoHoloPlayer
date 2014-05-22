@@ -8,6 +8,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/ParallaxScroll" />
             <option value="$PROJECT_DIR$/jamendoholoplayer" />
             <option value="$PROJECT_DIR$/motion" />
           </set>

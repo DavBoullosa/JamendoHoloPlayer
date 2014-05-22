@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
   ~ Copyright (c) 2014 David Alejandro Fernández Sancho
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +16,12 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <color name="almostblack">#ff393939</color>
-    <color name="sweetgray">#ff868686</color>
-    <color name="verylightgray">#ffe1e1e1</color>
-    <color name="holo_background_start">#fff3f3f3</color>
-</resources>
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/textView"
+    style="@style/h1TitleDarkItalicLight"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/holo_background_start"
+    android:padding="@dimen/littlespace"
+    android:text="@string/popularsongs" />
